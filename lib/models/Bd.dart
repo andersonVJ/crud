@@ -14,20 +14,19 @@ class DatabaseHelper {
         onCreate: (Database db, int version) async {
       await db.execute('''
   CREATE TABLE estudiante (
-    id INTEGER PRIMARY KEY,
-    documentoIdentidad INTEGER,
-    nombres TEXT,
-    edad INTEGER,
-    cursosIds TEXT
-  )
-''');
+  id INTEGER PRIMARY KEY,
+  documentoIdentidad INTEGER,
+  nombres TEXT,
+  edad INTEGER,
+  cursosIds TEXT''');
+
       await db.execute('''
         CREATE TABLE curso (
-          id INTEGER PRIMARY KEY,
-          nombre TEXT,
-          creditos INTEGER,
-          nombreDocente TEXT,
-          estudiantesIds BLOB
+  id INTEGER PRIMARY KEY,
+  nombre TEXT,
+  creditos INTEGER,
+  nombreDocente TEXT,
+  estudiantesIds TEXT
         )
       ''');
     });
@@ -84,6 +83,7 @@ class DatabaseHelper {
 
   Future<int> insertCurso(Curso curso) async {
     await open();
+
     return await database.insert('curso', curso.toMap());
   }
 
@@ -93,9 +93,13 @@ class DatabaseHelper {
                 columns: null, where: 'id = ?', whereArgs: [id]))
             .length >
         0) {
-      return Curso.fromMap((await database
+      final cursoMap = (await database
               .query('curso', columns: null, where: 'id = ?', whereArgs: [id]))
-          .first);
+          .first;
+      final estudiantesIds = json
+          .decode(cursoMap['estudiantesIds'] as String); // Convierte a String
+      cursoMap['estudiantesIds'] = estudiantesIds;
+      return Curso.fromMap(cursoMap);
     }
     return null;
   }
@@ -110,4 +114,6 @@ class DatabaseHelper {
     await open();
     return await database.delete('curso', where: 'id = ?', whereArgs: [id]);
   }
+
+  getAllCursos() {}
 }

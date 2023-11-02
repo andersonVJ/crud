@@ -23,7 +23,7 @@ class NavigationScreen extends StatefulWidget {
 
 class _NavigationScreenState extends State<NavigationScreen> {
   int _currentIndex = 0;
-  final List<Widget> _screens = [EstudianteScreen(), CursoScreen()];
+  final List<Widget> _screens = [EstudianteScreen(), CursosScreen()];
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +47,20 @@ class _NavigationScreenState extends State<NavigationScreen> {
           });
         },
       ),
+      floatingActionButton: _currentIndex == 1
+          ? FloatingActionButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => AgregarCursoScreen(),
+                  ),
+                );
+              },
+              child: Icon(Icons.add),
+            )
+          : null, // Mostrar el botón solo en la pantalla de Cursos
     );
   }
 }
+
+AgregarCursoScreen() {}
