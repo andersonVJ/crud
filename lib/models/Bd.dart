@@ -13,43 +13,32 @@ class DatabaseHelper {
     database = await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
       await db.execute('''
-  CREATE TABLE estudiante (
-  id INTEGER PRIMARY KEY,
-  documentoIdentidad INTEGER,
-  nombres TEXT,
-  edad INTEGER,
-  cursosIds TEXT''');
-
-      await db.execute('''
-        CREATE TABLE curso (
-  id INTEGER PRIMARY KEY,
-  nombre TEXT,
-  creditos INTEGER,
-  nombreDocente TEXT,
-  estudiantesIds TEXT
+        CREATE TABLE estudiante (
+          id INTEGER PRIMARY KEY,
+          documentoIdentidad INTEGER,
+          nombres TEXT,
+          edad INTEGER
         )
       ''');
     });
   }
 
-  // Métodos CRUD para Estudiantes
   Future<int> insertEstudiante(Estudiante estudiante) async {
     await open();
-    estudiante.cursosIds = json.encode(estudiante.cursosIds);
     return await database.insert('estudiante', estudiante.toMap());
   }
 
-  Future<Estudiante?> getEstudiante(int id) async {
+  Future<List<Estudiante>> getAllEstudiantes() async {
     await open();
-    if ((await database.query('estudiante',
-                columns: null, where: 'id = ?', whereArgs: [id]))
-            .length >
-        0) {
-      return Estudiante.fromMap((await database.query('estudiante',
-              columns: null, where: 'id = ?', whereArgs: [id]))
-          .first);
-    }
-    return null;
+    final List<Map<String, dynamic>> maps = await database.query('estudiante');
+    return List.generate(maps.length, (i) {
+      return Estudiante(
+        id: maps[i]['id'],
+        documentoIdentidad: int.parse(maps[i]['documentoIdentidad'].toString()),
+        nombres: maps[i]['nombres'],
+        edad: int.parse(maps[i]['edad'].toString()),
+      );
+    });
   }
 
   Future<int> updateEstudiante(Estudiante estudiante) async {
@@ -65,18 +54,26 @@ class DatabaseHelper {
   }
 
   // Método para obtener todos los estudiantes
-  Future<List<Estudiante>> getAllEstudiantes() async {
-    await open();
-    final List<Map<String, dynamic>> maps = await database.query('estudiante');
-    return List.generate(maps.length, (i) {
-      return Estudiante(
-        id: maps[i]['id'],
-        documentoIdentidad: int.parse(maps[i]['documentoIdentidad']),
-        nombres: maps[i]['nombres'],
-        edad: maps[i]['edad'],
-        cursosIds: '',
-      );
-    });
+
+  Future<List<Estudiante>> getEstudiantes() async {
+    try {
+      await open();
+      final List<Map<String, dynamic>> maps =
+          await database.query('estudiante');
+      print('Obteniendo estudiantes: $maps');
+      return List.generate(maps.length, (i) {
+        final estudiantesIds = json.decode(maps[i]['cursosIds'] as String);
+        return Estudiante(
+          id: maps[i]['id'],
+          documentoIdentidad: int.parse(maps[i]['documentoIdentidad']),
+          nombres: maps[i]['nombres'],
+          edad: maps[i]['edad'],
+        );
+      });
+    } catch (e) {
+      print('Error al obtener estudiantes: $e');
+      return [];
+    }
   }
 
   // Métodos CRUD para Cursos

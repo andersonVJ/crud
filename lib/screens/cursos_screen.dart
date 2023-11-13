@@ -1,3 +1,4 @@
+import 'package:crud/models/estudiante.dart';
 import 'package:flutter/material.dart';
 import 'package:crud/models/Bd.dart';
 import 'package:crud/models/cursos.dart';
@@ -12,6 +13,8 @@ class _CursosScreenState extends State<CursosScreen> {
   final TextEditingController _nombreController = TextEditingController();
   final TextEditingController _creditosController = TextEditingController();
   final TextEditingController _docenteController = TextEditingController();
+
+  set estudiantes(List<Estudiante> estudiantes) {}
 
   @override
   Widget build(BuildContext context) {

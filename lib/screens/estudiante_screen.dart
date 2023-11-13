@@ -28,9 +28,7 @@ class _EstudianteScreenState extends State<EstudianteScreen> {
       setState(() {
         estudiantes = estudiantesList;
       });
-    } else {
-      // Manejar el caso en el que estudiantesList sea null
-    }
+    } else {}
   }
 
   @override
@@ -135,12 +133,21 @@ class _EstudianteScreenState extends State<EstudianteScreen> {
                     nombres: _nombresController.text,
                     edad: int.parse(_edadController.text),
                     id: null,
-                    cursosIds:
-                        '', // Asegúrate de configurar cursosIds según tus necesidades
+                    // Asegúrate de pasar una lista vacía
                   );
-                  DatabaseHelper().insertEstudiante(nuevoEstudiante);
-                  _cargarEstudiantes();
-                  Navigator.of(context).pop();
+                  DatabaseHelper()
+                      .insertEstudiante(nuevoEstudiante)
+                      .then((value) {
+                    if (value > 0) {
+                      // Estudiante agregado con éxito
+                      _cargarEstudiantes(); // Actualiza la lista de estudiantes
+                      Navigator.of(context).pop();
+                    } else {
+                      // Error al agregar el estudiante
+                      // Aquí puedes manejar el error como desees
+                      Navigator.of(context).pop();
+                    }
+                  });
                 }
               },
               child: Text('Agregar'),
